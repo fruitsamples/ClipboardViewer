@@ -1,7 +1,7 @@
 /*
      File: PasteboardController.m
  Abstract: Controller object for the pasteboard viewer; handles retrieving types and data from the selected pasteboard, as well as saving.
-  Version: 1.0
+  Version: 1.1
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -41,7 +41,7 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2009 Apple Inc. All Rights Reserved.
+ Copyright (C) 2011 Apple Inc. All Rights Reserved.
  
  */
 
@@ -240,30 +240,21 @@
     } else {
         NSData *data = [self.whichPboard dataForType:[self.types objectAtIndex:selectedTypeIndex]];
         if (data) {
-            [[NSSavePanel savePanel] beginSheetForDirectory:nil
-                                                       file:@""
-                                             modalForWindow:[dataView window]
-                                              modalDelegate:self
-                                             didEndSelector:@selector(didEndSaveSheet:returnCode:pasteboardData:)
-                                                contextInfo:[data retain]];
+            NSSavePanel *savePanel = [NSSavePanel savePanel];
+            [savePanel beginSheetModalForWindow:[dataView window] completionHandler:^(NSInteger result) {
+                if (result == NSFileHandlingPanelOKButton) {     // User confirmed
+                    NSURL *url = [savePanel URL];
+                    [savePanel orderOut:nil];   // To allow any error sheet to display properly
+                    NSError *error;
+                    if (![data writeToURL:url options:NSAtomicWrite error:&error]) {
+                        [dataView presentError:error modalForWindow:[dataView window] delegate:nil didPresentSelector:0 contextInfo:NULL];	// It's easy to present error messages!  Here we present a sheet.
+                    }
+                }
+            }];
         } else {
             NSBeep();
         }
     }
-}
-
-/* Called when the save panel ends. If the user selected the "Save" button, the data is written to the selected file. (We passed the data in the third parameter because the clipboard could change while the user is selecting a file to save to.)
- */
-- (void)didEndSaveSheet:(NSSavePanel *)savePanel returnCode:(NSInteger)returnCode pasteboardData:(NSData *)data {
-    if (returnCode == NSOKButton) {
-        NSURL *url = [savePanel URL];
-        NSError *error;
-        if (![data writeToURL:url options:NSAtomicWrite error:&error]) {
-            [dataView presentError:error modalForWindow:[dataView window] delegate:nil didPresentSelector:0 contextInfo:NULL];	// It's easy to present error messages!  Here we present a sheet.
-        }
-    }
- 
-    [data release];
 }
 
 /* Validate any item hooked up to the save: action -- a type must be selected and must have data for a save to be valid. */
