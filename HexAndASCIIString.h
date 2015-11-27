@@ -5,7 +5,7 @@
  This format, and most of the implementation to support it, is carried over from the original LazyDataString class, once found in LazyDataTextStorage.m.
  The first number is the decimal offset of the current line. The next ten numbers are hex pairs for the next ten bytes. The last ten characters are ISO-8859-1 interpretations of the same ten bytes.
  
-  Version: 1.1
+  Version: 1.2
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -45,7 +45,7 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2011 Apple Inc. All Rights Reserved.
+ Copyright (C) 2012 Apple Inc. All Rights Reserved.
  
  */
 

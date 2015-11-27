@@ -1,7 +1,7 @@
 /*
      File: HexString.m
  Abstract: An NSData-backed string that displays its bytes as pairs of hex digits, separated by spaces.
-  Version: 1.1
+  Version: 1.2
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -41,7 +41,7 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2011 Apple Inc. All Rights Reserved.
+ Copyright (C) 2012 Apple Inc. All Rights Reserved.
  
  */
 
@@ -95,13 +95,13 @@
 /* Converts bytes in the given range into printable characters and stores them in the given buffer. Each byte is appended to a mutable string using a format string, then its characters are transferred to the buffer. There are special cases for when the range overlaps part of a "byte" on either end.
  */
 - (void)getCharacters:(unichar *)buffer range:(NSRange)range {
+    if (NSMaxRange(range) > [self length]) {
+        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"*** -[%@ %@]: Range %@ is out of bounds", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromRange(range)] userInfo:nil];
+    }
+
     NSMutableString *byteString = [[NSMutableString alloc] initWithCapacity:2];
     const unsigned char *bytes = [data bytes];
     
-    if (NSMaxRange(range) > [self length]) {
-        @throw [NSException exceptionWithName:NSRangeException reason:[NSString stringWithFormat:@"*** -[%@ %@]: Range is out of bounds", NSStringFromClass([self class]), NSStringFromSelector(_cmd), NSStringFromRange(range)] userInfo:nil];
-    }
-        
     NSUInteger firstByte = range.location / 3;
     NSUInteger offset = 3 - (range.location % 3); // how much of the first byte we need to handle separately
     
